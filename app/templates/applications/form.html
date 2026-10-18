@@ -1,0 +1,15 @@
+{% extends "base.html" %}{% from "_macros.html" import field %}
+{% block title %}{{ title }} · DevTrack{% endblock %}
+{% block content %}
+<section class="narrow">
+  <h1>{{ title }}</h1>
+  <form method="post">{{ form.hidden_tag() }}
+    {{ field(form.company) }}{{ field(form.role) }}{{ field(form.status) }}
+    <div class="two">{{ field(form.date_applied) }}{{ field(form.next_followup) }}</div>
+    <div class="two">{{ field(form.salary_min) }}{{ field(form.salary_max) }}</div>
+    {{ field(form.job_url) }}{{ field(form.notes, rows=5) }}
+    <button class="btn">Save</button>
+    <a class="btn ghost" href="{{ url_for('applications.list_') }}">Cancel</a>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · DevTrack{% endblock %}
+{% block content %}
+<div class="head"><h1>Dashboard</h1><a class="btn" href="{{ url_for('applications.new') }}">Add application</a></div>
+<div class="stats">
+  <div><b>{{ stats.applied }}</b>applied</div>
+  <div><b>{{ stats.interviews }}</b>interviews</div>
+  <div><b>{{ stats.offers }}</b>offers</div>
+  <div><b>{{ stats.interview_rate }}%</b>applied → interview</div>
+  <div><b>{{ stats.offer_rate }}%</b>interview → offer</div>
+</div>
+<h2>Follow-ups due this week</h2>
+{% if followups %}<ul class="followups">
+  {% for a in followups %}<li><a href="{{ url_for('applications.edit', app_id=a.id) }}">{{ a.company }} · {{ a.role }}</a>
+    <span class="{{ 'late' if a.next_followup < today }}">{{ 'Overdue: ' if a.next_followup < today }}{{ a.next_followup }}</span></li>{% endfor %}
+</ul>{% else %}<p class="muted">Nothing due in the next 7 days.</p>{% endif %}
+<h2>Pipeline</h2>
+{% if stats.total == 0 %}<div class="empty">No applications yet. <a href="{{ url_for('applications.new') }}">Add one</a> to fill the board.</div>{% endif %}
+<div class="board">
+  {% for status, items in board.items() %}
+  <section><h3>{{ status }} <span class="muted">{{ items|length }}</span></h3>
+    {% for a in items %}<a class="kcard" href="{{ url_for('applications.edit', app_id=a.id) }}"><b>{{ a.company }}</b><span>{{ a.role }}</span></a>{% endfor %}
+  </section>
+  {% endfor %}
+</div>
+{% endblock %}

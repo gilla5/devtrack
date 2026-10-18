@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Applications · DevTrack{% endblock %}
+{% block content %}
+<div class="head"><h1>Applications</h1><a class="btn" href="{{ url_for('applications.new') }}">Add application</a></div>
+<form class="filters" method="get">
+  <input name="q" value="{{ q }}" placeholder="Search by company" aria-label="Search by company">
+  <select name="status" aria-label="Status"><option value="">All statuses</option>
+    {% for s in statuses %}<option {{ 'selected' if s == status }}>{{ s }}</option>{% endfor %}</select>
+  <select name="sort" aria-label="Sort">
+    <option value="newest" {{ 'selected' if sort == 'newest' }}>Newest first</option>
+    <option value="oldest" {{ 'selected' if sort == 'oldest' }}>Oldest first</option>
+    <option value="company" {{ 'selected' if sort == 'company' }}>Company A–Z</option></select>
+  <button class="btn">Filter</button>
+</form>
+{% if page.items %}
+<div class="tablewrap"><table>
+  <thead><tr><th>Company</th><th>Role</th><th>Status</th><th>Applied</th><th>Salary</th><th>Follow-up</th><th></th></tr></thead>
+  <tbody>
+  {% for a in page.items %}
+  <tr>
+    <td>{% if a.job_url %}<a href="{{ a.job_url }}" rel="noopener noreferrer" target="_blank">{{ a.company }}</a>{% else %}{{ a.company }}{% endif %}</td>
+    <td>{{ a.role }}</td>
+    <td><span class="pill {{ a.status|lower }}">{{ a.status }}</span></td>
+    <td>{{ a.date_applied or '—' }}</td>
+    <td>{% if a.salary_min or a.salary_max %}${{ '{:,}'.format(a.salary_min or 0) }}–{{ '{:,}'.format(a.salary_max or 0) }}{% else %}—{% endif %}</td>
+    <td>{{ a.next_followup or '—' }}</td>
+    <td class="acts"><a href="{{ url_for('applications.edit', app_id=a.id) }}">Edit</a>
+      <form method="post" action="{{ url_for('applications.delete', app_id=a.id) }}" onsubmit="return confirm('Delete this application?')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="link danger">Delete</button></form></td>
+  </tr>
+  {% endfor %}
+  </tbody></table></div>
+<p class="pager">
+  {% if page.has_prev %}<a href="{{ url_for('applications.list_', page=page.prev_num, **args) }}">Previous</a>{% endif %}
+  Page {{ page.page }} of {{ page.pages }}
+  {% if page.has_next %}<a href="{{ url_for('applications.list_', page=page.next_num, **args) }}">Next</a>{% endif %}
+</p>
+{% else %}
+<div class="empty">No applications match. <a href="{{ url_for('applications.new') }}">Add your first application</a>.</div>
+{% endif %}
+{% endblock %}
